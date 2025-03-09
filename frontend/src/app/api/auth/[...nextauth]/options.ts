@@ -1,8 +1,8 @@
-import { AuthOptions, ISODateString } from "next-auth";
+import { AuthOptions, ISODateString, Account } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { JWT } from "next-auth/jwt";
-import axios from "axios";
 import { LOGIN_URL } from "../../../../lib/apiEndPoints";
+import { CloudCog } from "lucide-react";
 
 // Session and User Types
 export interface CustomSession {
@@ -37,7 +37,7 @@ export const authOptions: AuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,  // ✅ Important!
 
     pages: {
-        signIn: '/',  // Optional, but okay if you want custom page
+        signIn: '/',  // Optional, but okay if you want a custom sign-in page
     },
 
     session: {
@@ -45,30 +45,59 @@ export const authOptions: AuthOptions = {
     },
 
     callbacks: {
-        async signIn({ user, account }) {
+        async signIn({ user, account }: { user: CustomUser, account: Account | null }) {
             console.log("User details in signIn callback:", user, account);
 
             try {
                 const payload = {
                     email: user.email,
                     name: user.name,
-                    oauth_id: account?.id,
+                    oauth_id: account?.id || null,
                     provider: account?.provider,
                     image: user.image
                 };
 
-                const { data } = await axios.post(LOGIN_URL, payload);
-                console.log("Login API Response:", data);
+                console.log("Sending payload to backend:", payload);
 
-                if (data?.success) {
-                    return true;  // Login successful
-                } else {
-                    console.error("Login API failed:", data);
-                    return false;  // Fail login if your API rejects it
+                const response = await fetch("http://localhost:8000/api/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(payload),
+                });
+       
+                console.log("Response status:", response.status);
+                console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Login API failed GG:", {
+                        status: response.status,
+                        statusText: response.statusText,
+                        body: errorText
+                    });
+                    return false;
                 }
+
+                const responseData = await response.json();
+                console.log("Login API Response HH:", responseData);
+                
+                // Extract user data from the response structure
+                if (responseData.user) {
+                    user.id = responseData.user.id;
+                    user.token = responseData.user.token;
+                    console.log("Updated user details:", user);
+                } else {
+                    console.error("User data not found in response");
+                    return false;
+                }
+
+                return true;
             } catch (error) {
                 console.error("Error during login API call:", error);
-                return false;  // Fail safe
+                return false;
             }
         },
 

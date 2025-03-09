@@ -18,13 +18,14 @@ model User {
   name       String      @db.VarChar(191)
   email      String      @unique
   provider   String
-  oauth_id   String
+  oauth_id   String?     // ✅ Made nullable
   image      String?
   created_at DateTime    @default(now())
   ChatGroup  ChatGroup[]
 
   @@map("users")
 }
+
 
 model ChatGroup {
   id         String       @id @default(uuid()) @db.Uuid
