@@ -4,7 +4,14 @@ import prisma from "../config/db.config.js";
 class ChatGroupController {
   static async index(req: Request, res: Response) {
     try {
+      // Check if user exists in request
+      if (!req.user) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+      
       const user = req.user;
+      console.log("User ID for chat group query:", user.id);
+      
       const groups = await prisma.chatGroup.findMany({
         where: {
           user_id: user.id,
@@ -15,9 +22,10 @@ class ChatGroupController {
       });
       return res.json({ data: groups });
     } catch (error) {
+      console.error("Error in chat group index method:", error);
       return res
         .status(500)
-        .json({ message: "Something went wrong.please try again!" });
+        .json({ message: "Something went wrong. Please try again!", error: String(error) });
     }
   }
 
@@ -44,20 +52,34 @@ class ChatGroupController {
   static async store(req: Request, res: Response) {
     try {
       const body = req.body;
-      const user = req.user;
+      
+      // For POST requests without authentication
+      let userId = req.user?.id;
+      
+      // If no authenticated user (public endpoint)
+      if (!userId && !req.body.user_id) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Use the ID from request body if no authenticated user
+      if (!userId) {
+        userId = req.body.user_id;
+      }
+      
       await prisma.chatGroup.create({
         data: {
           title: body?.title,
           passcode: body?.passcode,
-          user_id: user.id,
+          user_id: userId,
         },
       });
 
       return res.json({ message: "Chat Group created successfully!" });
     } catch (error) {
+      console.error("Error in chat group store method:", error);
       return res
         .status(500)
-        .json({ message: "Something went wrong.please try again!" });
+        .json({ message: "Something went wrong. Please try again!", error: String(error) });
     }
   }
 
