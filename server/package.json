@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "watch": "tsc -w",
-    "server": "nodemon --exec node dist/index.js",
+    "server": "npx tsc -b && node dist/index.js",
     "dev": "concurrently \"npm run watch\" \"npm run server\""
   },
   "keywords": [],
