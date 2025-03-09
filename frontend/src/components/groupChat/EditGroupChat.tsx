@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 
 import {
@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -18,25 +17,42 @@ import {
 } from "@/validations/groupChatvalidations";
 import { CustomUser } from "@/app/api/auth/[...nextauth]/options";
 import axios, { AxiosError } from "axios";
-
 import { toast } from "sonner";
+import { clearCache } from "@/actions/common";
+import { ChatGroupType } from "../../../type";
 
-export default function CreateChat({ user }: { user: CustomUser }) {
-  const [open, setOpen] = useState(false);
+export default function EditGroupChat({
+  user,
+  group,
+  open,
+  setOpen,
+}: {
+  user: CustomUser;
+  group: ChatGroupType;
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}) {
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<createChatSchemaType>({
     resolver: zodResolver(createChatSchema),
   });
+
+  useEffect(() => {
+    setValue("title", group.title);
+    setValue("passcode", group.passcode);
+  }, [group]);
+
   const onSubmit = async (payload: createChatSchemaType) => {
     // console.log("The payload is", payload);
     try {
       setLoading(true);
-      const { data } = await axios.post("http://localhost:7000/api/chat-group", payload, {
+      const { data } = await axios.put(`http://localhost:7000/api/chat-group/${group.id}`, payload, {
         headers: {
           Authorization: user.token,
         },
@@ -45,6 +61,7 @@ export default function CreateChat({ user }: { user: CustomUser }) {
       if (data?.message) {
         setOpen(false);
         toast.success(data?.message);
+        clearCache("dashboard");
       }
       setLoading(false);
     } catch (error) {
@@ -59,12 +76,9 @@ export default function CreateChat({ user }: { user: CustomUser }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Create Chat</Button>
-      </DialogTrigger>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Create your new Chat</DialogTitle>
+          <DialogTitle>Update group chat</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mt-4">
