@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import {Request, Response, NextFunction} from 'express';
 const authMiddleware = (req:Request, res:Response, next:NextFunction) => { 
     const authheader = req.headers.authorization;
-    console.log("authheader", authheader);
     if(!authheader){
         return res.status(401).json({message: "user is not authorized"})
     }
