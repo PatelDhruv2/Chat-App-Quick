@@ -10,7 +10,6 @@ const prisma = new PrismaClient({
     errorFormat: 'minimal'
 });
 
-// Connection handling
 const connectDB = async () => {
     try {
         await prisma.$connect();

@@ -33,7 +33,7 @@ export default function CreateChat({ user }: { user: CustomUser }) {
     resolver: zodResolver(createChatSchema),
   });
   const onSubmit = async (payload: createChatSchemaType) => {
-    // console.log("The payload is", payload);
+     console.log("The payload is", payload);
     try {
       setLoading(true);
       const { data } = await axios.post("http://localhost:7000/api/chat-group", payload, {

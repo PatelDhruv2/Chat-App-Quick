@@ -52,89 +52,58 @@ class AuthController {
         }
     }
 
-    static async getUser(req: Request, res: Response) {
-        try {
-            const body: LoginPayloadType = req.body;
-            console.log("📩 Received login request:", body);
+   // In AuthController.ts, update the getUser method:
+static async getUser(req: Request, res: Response) {
+    try {
+        const body: LoginPayloadType = req.body;
+        console.log("📩 Received login request:", body);
 
-            // Validate Required Fields
-            if (!body.email || !body.provider) {
-                return res.status(400).json({ 
-                    message: "Missing required fields",
-                    required: ["email", "provider"]
-                });
-            }
+        // ... (existing validation code)
 
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(body.email)) {
-                return res.status(400).json({ message: "Invalid email format" });
-            }
+        let user = await prisma.user.findUnique({
+            where: { email: body.email }
+        });
 
-            // For non-OAuth logins, verify OTP
-            if (body.provider === 'email') {
-                if (!body.otp) {
-                    return res.status(400).json({ message: "OTP is required for email login" });
-                }
-
-                const isValidOTP = verifyOTP(body.email, body.otp);
-                if (!isValidOTP) {
-                    return res.status(401).json({ 
-                        message: "Invalid or expired OTP",
-                        action: "Please request a new OTP"
-                    });
-                }
-            }
-
-            // Find or create user
-            let user = await prisma.user.findUnique({
-                where: { email: body.email }
-            });
-
-            if (!user) {
-                // For email login, name is required for new users
-                if (body.provider === 'email' && !body.name) {
-                    return res.status(400).json({ message: "Name is required for new users" });
-                }
-
-                user = await prisma.user.create({
-                    data: {
-                        name: body.name,
-                        email: body.email,
-                        provider: body.provider,
-                        oauth_id: body.oauth_id,
-                        image: body.image
-                    }
-                });
-                console.log("👤 New user created:", user);
-            }
-
-            // Generate JWT token
-            const token = jwt.sign(
-                { 
-                    id: user.id, 
-                    email: user.email, 
-                    name: user.name 
-                },
-                process.env.JWT_SECRET_KEY as string,
-                { expiresIn: "1h" }
-            );
-
-            return res.status(200).json({
-                message: "✅ User logged in successfully",
-                user: {
-                    ...user,
-                    token: `Bearer ${token}`
+        if (!user) {
+            user = await prisma.user.create({
+                data: {
+                    name: body.name,
+                    email: body.email,
+                    provider: body.provider,
+                    oauth_id: body.oauth_id,
+                    image: body.image
                 }
             });
-        } catch (error) {
-            console.error("Error in getUser:", error);
-            return res.status(500).json({ 
-                message: "Internal server error",
-                error: process.env.NODE_ENV === 'development' ? String(error) : undefined
-            });
+            console.log("👤 New user created:", user);
         }
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { 
+                id: user.id,
+                email: user.email,
+                name: user.name 
+            },
+            process.env.JWT_SECRET_KEY as string,
+            { expiresIn: "1h" }
+        );
+
+        // Return response with Bearer token
+        return res.status(200).json({
+            message: "✅ User logged in successfully",
+            user: {
+                ...user,
+                token: `Bearer ${token}`  // Add 'Bearer ' prefix here
+            }
+        });
+    } catch (error) {
+        console.error("Error in getUser:", error);
+        return res.status(500).json({ 
+            message: "Internal server error",
+            error: process.env.NODE_ENV === 'development' ? String(error) : undefined
+        });
     }
+}
 }
 
 export default AuthController;

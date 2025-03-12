@@ -25,7 +25,7 @@ class ChatGroupController {
       console.error("Error in chat group index method:", error);
       return res
         .status(500)
-        .json({ message: "Something went wrong. Please try again!", error: String(error) });
+        .json({ message: "Something went wrong. Please try again! in index", error: String(error) });
     }
   }
 
@@ -79,7 +79,7 @@ class ChatGroupController {
       console.error("Error in chat group store method:", error);
       return res
         .status(500)
-        .json({ message: "Something went wrong. Please try again!", error: String(error) });
+        .json({ message: "Something went wrong. Please try again! in store", error: String(error) });
     }
   }
 
