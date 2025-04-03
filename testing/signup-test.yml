@@ -1,0 +1,20 @@
+config:
+  target: "http://localhost:7000"
+  phases:
+    - duration: 100  # Run the test for 100 seconds
+      arrivalRate: 100  # 100 new requests per second
+      rampTo: 200  # Gradually increase to 200 RPS
+    - duration: 50  # Sustain peak load
+      arrivalRate: 200  # 200 new requests per second
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - flow:
+      - post:
+          url: "/api/auth/signup"
+          json:
+            username: "user{{ $randomString() }}"
+            email: "test{{ $randomNumber(100000,999999) }}@mail.com"
+            password: "Test@123"

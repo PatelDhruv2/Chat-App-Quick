@@ -19,13 +19,8 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
-
-// Connect to database
 connectDB();
-
-// Handle disconnection on app termination
 process.on('beforeExit', async () => {
     await prisma.$disconnect();
 });
-
 export default prisma;

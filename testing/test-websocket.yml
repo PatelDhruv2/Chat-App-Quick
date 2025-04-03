@@ -1,0 +1,13 @@
+config:
+  target: "ws://localhost:7000"
+  phases:
+    - duration: 6  # Run for 60 seconds
+      arrivalRate: 20  # 2000 users per second
+      rampTo: 5 # Ramp up to 5000 users per second
+  processor: "./artillery-socket.js"
+
+scenarios:
+  - engine: "ws"
+    flow:
+      - send:
+          text: "{ \"event\": \"message\", \"data\": \"Test message\" }"
