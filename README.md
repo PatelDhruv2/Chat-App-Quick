@@ -7,7 +7,6 @@ A real-time chat application built with Node.js, Express, Socket.io, Kafka, Redi
 - **Real-time messaging** using WebSockets  
 - **Kafka for message queuing**  
 - **Redis Cluster** for caching  
-- **Nginx load balancing**  
 - **Database integration** with Prisma ORM  
 - **Docker support** for containerized deployment  
 
@@ -18,7 +17,6 @@ A real-time chat application built with Node.js, Express, Socket.io, Kafka, Redi
 - **Database**: PostgreSQL (Prisma ORM)  
 - **Message Queue**: Apache Kafka  
 - **Caching**: Redis Cluster  
-- **Load Balancer**: Nginx  
 - **Containerization**: Docker  
 - **Performance Testing**: Artillery  
 
@@ -60,6 +58,5 @@ This includes **everything** in a single code block:
 - **Performance testing (Artillery)**  
 - **Kafka configuration**  
 - **WebSocket setup**  
-- **Load balancing with Nginx**  
 - **API endpoints**  
 - **Docker support**  
