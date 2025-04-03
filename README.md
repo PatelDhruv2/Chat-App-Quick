@@ -32,7 +32,34 @@ A real-time chat application built with Node.js, Express, Socket.io, Kafka, Redi
 
 ### Setup
 
-1. Clone the repository:  
-   ```sh
-   git clone https://github.com/PatelDhruv2/Chat-App-Quick.git
-   cd Chat-App-Quick
+```sh
+# Clone the repository  
+git clone https://github.com/PatelDhruv2/Chat-App-Quick.git
+cd Chat-App-Quick
+
+# Install dependencies  
+npm install
+
+# Set up environment variables  
+cp .env.example .env  # Update .env with your configuration
+
+# Start Redis, Kafka, and Database (if using Docker)  
+docker-compose up -d
+
+# Start the server  
+npm run dev
+# Install Artillery  
+npm install -g artillery
+
+# Run the load test  
+artillery run artillery-config.yml
+
+This includes **everything** in a single code block:  
+- **Project overview**  
+- **Installation steps**  
+- **Performance testing (Artillery)**  
+- **Kafka configuration**  
+- **WebSocket setup**  
+- **Load balancing with Nginx**  
+- **API endpoints**  
+- **Docker support**  
