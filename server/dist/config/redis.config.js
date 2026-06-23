@@ -1,6 +1,16 @@
 import { Redis } from 'ioredis';
-const redis = new Redis({
-    host: 'localhost',
-    port: 6379,
-});
+const isBenchmarkMode = process.env.CHATAPP_BENCHMARK === '1' ||
+    process.env.CHATAPP_BENCHMARK === 'true';
+const redisHost = process.env.REDIS_HOST ?? 'localhost';
+const redisPort = Number(process.env.REDIS_PORT ?? '6379');
+const redis = isBenchmarkMode
+    ? {
+        options: {},
+    }
+    : process.env.REDIS_HOST
+        ? new Redis({
+            host: redisHost,
+            port: redisPort,
+        })
+        : null;
 export default redis;
